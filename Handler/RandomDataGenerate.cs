@@ -3,7 +3,7 @@ using System;
 
 namespace FakeDataGenerate.Handler
 {
-    public class RandomCodeGenerate : IRandomCodeGenerate
+    public class RandomDataGenerate : IRandomDataGenerate
     {
         private static string _charDic = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -24,14 +24,10 @@ namespace FakeDataGenerate.Handler
             return result;
         }
 
-        public DateTime DateTimeGenerate(int year)
+        public DateTime DateTimeGenerate(DateTime dateTime,int range)
         {
             Random random = new Random();
-            //隨機日期範圍
-            int range = 365;
-            //時間年份
-            DateTime startDate = new DateTime(year, 1, 1);
-            return startDate.AddDays(random.Next(range));
+            return dateTime.AddDays(random.Next(range));
         }
     }
 

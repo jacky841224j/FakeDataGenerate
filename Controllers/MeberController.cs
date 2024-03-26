@@ -12,16 +12,21 @@ namespace FakeDataGenerate.Controllers
     public class MeberController : ControllerBase
     {
         private readonly IDbConnection _dbConnection;
-        private readonly IRandomCodeGenerate _randomCodeGenerate;
+        private readonly IRandomDataGenerate _randomDataGenerate;
 
-        public MeberController(IDbConnection dbConnection, IRandomCodeGenerate randomCodeGenerate)
+        public MeberController(IDbConnection dbConnection, IRandomDataGenerate randomDataGenerate)
         {
             _dbConnection = dbConnection;
-            _randomCodeGenerate = randomCodeGenerate;
+            _randomDataGenerate = randomDataGenerate;
         }
 
+        /// <summary>
+        /// 生成客戶資料
+        /// </summary>
+        /// <param name="num"></param>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<TimeSpan> CreateMember(int num)
+        public async Task<TimeSpan> CreateMember()
         {
             Stopwatch stopwatch = new Stopwatch();
             int insertcount = 0;
@@ -43,27 +48,27 @@ namespace FakeDataGenerate.Controllers
                 );";
 
             stopwatch.Start();
-            for (int x = 0; x < num; x++)
+            for (int x = 0; x < 1000; x++)
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("@username", _randomCodeGenerate.InvitationCodeGenerate(), DbType.String);
-                parameters.Add("@invitation_code", _randomCodeGenerate.InvitationCodeGenerate(), DbType.String);
-                parameters.Add("@create_time", _randomCodeGenerate.DateTimeGenerate(DateTime.Now.Year).ToString("yyyy-MM-dd hh:mm:ss"), DbType.String);
+                parameters.Add("@username", _randomDataGenerate.InvitationCodeGenerate(), DbType.String);
+                parameters.Add("@invitation_code", _randomDataGenerate.InvitationCodeGenerate(), DbType.String);
+                parameters.Add("@create_time", _randomDataGenerate.DateTimeGenerate(DateTime.Now, 365).ToString("yyyy-MM-dd hh:mm:ss"), DbType.String);
                 insertcount += await _dbConnection.ExecuteAsync(sqlcommend, parameters);
             }
             stopwatch.Stop();
 
-            var elapsedTime = stopwatch.Elapsed;
-
-            if (insertcount == num)
-                return elapsedTime;
-            else
-                return elapsedTime;
+            return stopwatch.Elapsed;
         }
 
+        /// <summary>
+        /// 建立推薦人資料
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public async Task CreateInvitation()
+        public async Task<TimeSpan> CreateInvitation()
         {
+            Stopwatch stopwatch = new Stopwatch();
             if (_dbConnection.State == ConnectionState.Closed)
             {
                 _dbConnection.Open();
@@ -78,6 +83,7 @@ namespace FakeDataGenerate.Controllers
             //取出沒有推薦人的帳號
             var memberList = (await _dbConnection.QueryAsync<MemberDto>(sqlcommend)).ToList();
 
+            stopwatch.Start();
             foreach (var member in memberList)
             {
                 var parent = new MemberDto();
@@ -99,12 +105,15 @@ namespace FakeDataGenerate.Controllers
                 }
 
                 var parameters = new DynamicParameters();
-                sqlcommend = @" UPDATE member SET agent_fk = @agent_fk , recommend = @recommend WHERE pk = @pk;";
-                parameters.Add("@pk", member.pk, DbType.Int64);
-                parameters.Add("@agent_fk", parent.pk, DbType.Int64);
+                sqlcommend = @"UPDATE member SET agent_fk = @agent_fk , recommend = @recommend WHERE pk = @pk;";
+                parameters.Add("@pk", member.pk, DbType.Int32);
+                parameters.Add("@agent_fk", parent.pk, DbType.Int32);
                 parameters.Add("@recommend", parent.username, DbType.String);
                 await _dbConnection.ExecuteAsync(sqlcommend, parameters);
             }
+            stopwatch.Stop();
+
+            return stopwatch.Elapsed;
         }
     }
 }

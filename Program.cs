@@ -14,7 +14,7 @@ builder.Services.AddSwaggerGen();
 var dbconstring = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDapper(dbconstring);
-builder.Services.AddScoped<IRandomCodeGenerate,RandomCodeGenerate>();
+builder.Services.AddScoped<IRandomDataGenerate,RandomDataGenerate>();
 
 var app = builder.Build();
 
@@ -30,5 +30,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/", () => $"Hello !");
 
 app.Run();
