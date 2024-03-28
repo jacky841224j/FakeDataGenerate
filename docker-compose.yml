@@ -6,6 +6,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - 80:80
+      # - 443:443
     depends_on:
       - db
 
@@ -14,7 +15,7 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: 'test1'
-      MYSQL_USER: 'root'  # 設定自定義的 MySQL 用戶名
+      # MYSQL_USER: 'root'  # 設定自定義的 MySQL 用戶名
       MYSQL_PASSWORD: '123123'  # 設定自定義的 MySQL 用戶密碼
       MYSQL_ROOT_PASSWORD: '123123'  # 修改 MySQL root 用戶的密碼
     ports:

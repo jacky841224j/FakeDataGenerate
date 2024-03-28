@@ -19,17 +19,18 @@ builder.Services.AddScoped<IRandomDataGenerate,RandomDataGenerate>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "交易資料產生器");
+    c.RoutePrefix = string.Empty;
+});
 
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGet("/", () => $"Hello !");
+
+app.MapGet("/", () => $"Hello !!!");
 
 app.Run();
